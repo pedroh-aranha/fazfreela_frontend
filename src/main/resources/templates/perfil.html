@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FazFreela - Meu Perfil</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .perfil-wrapper {
+            max-width: 700px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .perfil-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .perfil-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+        }
+
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .perfil-nome {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+        }
+
+        .perfil-email {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            margin: 2rem 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+
+        .info-item span {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        .nota-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .btn-logout {
+            display: inline-block;
+            margin-top: 1rem;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #f87171;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239,68,68,0.25);
+            transform: translateY(-2px);
+        }
+
+        .erro-box {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #f87171;
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/trabalhos" class="logo" style="text-decoration: none;">FazFreela</a>
+        <div class="nav-links" style="display: flex; align-items: center; gap: 1.5rem;">
+            <span style="font-weight: 600; color: #f8fafc;">Olá, <span th:text="${session.nome}">Trabalhador</span></span>
+            <a href="/trabalhos" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Vagas</a>
+            <a href="/meus-trabalhos" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Meus Trabalhos</a>
+            <a href="/perfil" style="color: #f8fafc; text-decoration: none; font-weight: 600;">Meu Perfil</a>
+            <a href="/logout" style="color: #f87171; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#f87171'">Sair</a>
+        </div>
+    </nav>
+
+    <div class="perfil-wrapper">
+
+        <div th:if="${param.erro}" class="erro-box" th:text="${param.erro}"></div>
+        <div th:if="${param.sucesso}" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; padding: 1rem; border-radius: 10px; font-weight: 600; margin-bottom: 1rem;">Perfil atualizado com sucesso!</div>
+        <div th:if="${erro}" class="erro-box" th:text="${erro}"></div>
+
+        <div th:if="${usuario}" class="perfil-card">
+
+            <div class="avatar" th:text="${#strings.substring(usuario.nome, 0, 1)}"></div>
+
+            <div class="perfil-nome" th:text="${usuario.nome}">Nome do Usuário</div>
+            <div class="perfil-email" th:text="${usuario.email}">email@email.com</div>
+
+            <hr class="divider">
+
+            <div class="info-grid">
+                <div class="info-item" style="grid-column: span 2;">
+                    <form th:action="@{/perfil/atualizar}" method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: end;">
+                        <div>
+                            <label for="cidade">📍 Cidade</label>
+                            <input type="text" id="cidade" name="cidade" th:value="${usuario.cidade}" placeholder="Ex: São Paulo" style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+                        </div>
+                        <div>
+                            <label for="estado">🗺️ Estado</label>
+                            <input type="text" id="estado" name="estado" th:value="${usuario.estado}" placeholder="SP" maxlength="2" style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <button type="submit" style="width: 100%; padding: 0.8rem; background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="info-item">
+                    <label>⭐ Nota Média</label>
+                    <span>
+                        <span class="nota-badge">
+                            ⭐ <span th:text="${usuario.notaMedia != null} ? ${#numbers.formatDecimal(usuario.notaMedia, 1, 1)} : '—'">0.0</span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <a href="/logout" class="btn-logout">🚪 Sair da conta</a>
+        </div>
+    </div>
+
+</body>
+</html>
