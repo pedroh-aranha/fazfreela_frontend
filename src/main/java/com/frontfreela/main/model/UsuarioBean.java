@@ -17,6 +17,8 @@ public class UsuarioBean {
     private String cidade;
     private String estado;
     private Double notaMedia;
+    private String habilidades;
+    private java.math.BigDecimal pretensaoValorHora;
 
     public UsuarioBean() {
     }
@@ -85,5 +87,21 @@ public class UsuarioBean {
 
     public void setNotaMedia(Double notaMedia) {
         this.notaMedia = notaMedia;
+    }
+
+    public String getHabilidades() {
+        return habilidades;
+    }
+
+    public void setHabilidades(String habilidades) {
+        this.habilidades = habilidades;
+    }
+
+    public java.math.BigDecimal getPretensaoValorHora() {
+        return pretensaoValorHora;
+    }
+
+    public void setPretensaoValorHora(java.math.BigDecimal pretensaoValorHora) {
+        this.pretensaoValorHora = pretensaoValorHora;
     }
 }

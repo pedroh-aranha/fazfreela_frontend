@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FazFreela - Editar Anúncio</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .edit-wrapper {
+            max-width: 700px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .edit-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .edit-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+        }
+
+        .edit-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .edit-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .edit-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .edit-header p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.9rem 1.1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(15, 23, 42, 0.6);
+            color: #f8fafc;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-cancel {
+            padding: 1rem 2rem;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Outfit', sans-serif;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-cancel:hover {
+            border-color: rgba(255,255,255,0.3);
+            color: #f8fafc;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="/trabalhos" class="logo" style="text-decoration: none;">FazFreela</a>
+            <span style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); display: inline-block;"></span>
+            <span style="font-weight: 600; color: #f8fafc; font-size: 0.95rem;">Olá, <span th:text="${session.nome}" style="color: #a78bfa;">Trabalhador</span> 👋</span>
+        </div>
+        <div class="nav-links" style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="/trabalhos" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Vagas</a>
+            <a href="/meus-trabalhos" style="color: #f8fafc; text-decoration: none; font-weight: 600;">Meus Trabalhos</a>
+            <a href="/perfil" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Meu Perfil</a>
+            <a href="/logout" style="color: #f87171; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#f87171'">Sair</a>
+        </div>
+    </nav>
+
+    <div class="edit-wrapper">
+        <div class="edit-card">
+
+            <div class="edit-header">
+                <div class="edit-icon">✏️</div>
+                <div>
+                    <h1>Editar Anúncio</h1>
+                    <p>Atualize as informações da sua vaga</p>
+                </div>
+            </div>
+
+            <div th:if="${erro}" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; font-weight: 600;" th:text="${erro}"></div>
+
+            <form th:action="@{/trabalhos/editar/{id}(id=${trabalho.id})}" method="post">
+
+                <div class="form-group">
+                    <label for="titulo">Título do Anúncio</label>
+                    <input type="text" id="titulo" name="titulo" th:value="${trabalho.titulo}" placeholder="Ex: Preciso de pintor para apartamento" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao" th:text="${trabalho.descricao}" placeholder="Descreva detalhes do serviço, requisitos, etc." required></textarea>
+                </div>
+
+                <hr class="divider">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cidade">Cidade</label>
+                        <input type="text" id="cidade" name="cidade" th:value="${trabalho.cidade}" placeholder="Ex: São Paulo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado (UF)</label>
+                        <input type="text" id="estado" name="estado" th:value="${trabalho.estado}" placeholder="Ex: SP" maxlength="2" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valor">Valor (R$)</label>
+                        <input type="number" id="valor" name="valor" th:value="${trabalho.valor}" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataServico">Data do Serviço</label>
+                        <input type="datetime-local" id="dataServico" name="dataServico"
+                               th:value="${trabalho.dataServico != null ? #temporals.format(trabalho.dataServico, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="horasJornada">Quantidade de Horas (Jornada)</label>
+                        <input type="number" id="horasJornada" name="horasJornada" th:value="${trabalho.horasJornada}" min="1" placeholder="Ex: 8" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="habilidadesExigidas">Habilidades Exigidas (separadas por vírgula)</label>
+                        <input type="text" id="habilidadesExigidas" name="habilidadesExigidas" th:value="${trabalho.habilidadesExigidas}" placeholder="Ex: java, backend, sql" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="ABERTO" th:selected="${trabalho.status == 'ABERTO'}">Aberto</option>
+                            <option value="FECHADO" th:selected="${trabalho.status == 'FECHADO'}">Fechado</option>
+                            <option value="CONCLUIDO" th:selected="${trabalho.status == 'CONCLUIDO'}">Concluído</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <a href="/meus-trabalhos" class="btn-cancel">← Cancelar</a>
+                    <button type="submit" class="btn-save">💾 Salvar Alterações</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

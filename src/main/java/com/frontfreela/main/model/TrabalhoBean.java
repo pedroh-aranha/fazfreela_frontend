@@ -16,6 +16,8 @@ public class TrabalhoBean {
     private String estado;
     private LocalDateTime dataServico;
     private BigDecimal valor;
+    private Integer horasJornada;
+    private String habilidadesExigidas;
     private String status = "ABERTO";
     private UsuarioBean contratante;
 
@@ -98,11 +100,27 @@ public class TrabalhoBean {
         this.status = status;
     }
 
+    public Integer getHorasJornada() {
+        return horasJornada;
+    }
+
+    public void setHorasJornada(Integer horasJornada) {
+        this.horasJornada = horasJornada;
+    }
+
     public UsuarioBean getContratante() {
         return contratante;
     }
 
     public void setContratante(UsuarioBean contratante) {
         this.contratante = contratante;
+    }
+
+    public String getHabilidadesExigidas() {
+        return habilidadesExigidas;
+    }
+
+    public void setHabilidadesExigidas(String habilidadesExigidas) {
+        this.habilidadesExigidas = habilidadesExigidas;
     }
 }

@@ -117,7 +117,5 @@ public class AuthController {
     private void preservarCampos(Model model, UsuarioBean user) {
         model.addAttribute("nome", user.getNome());
         model.addAttribute("email", user.getEmail());
-        model.addAttribute("cidade", user.getCidade());
-        model.addAttribute("estado", user.getEstado());
     }
 }
