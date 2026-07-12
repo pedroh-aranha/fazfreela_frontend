@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FazFreela - Editar Anúncio</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .edit-wrapper {
+            max-width: 700px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .edit-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .edit-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+        }
+
+        .edit-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .edit-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .edit-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .edit-header p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.9rem 1.1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(15, 23, 42, 0.6);
+            color: #f8fafc;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-cancel {
+            padding: 1rem 2rem;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Outfit', sans-serif;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-cancel:hover {
+            border-color: rgba(255,255,255,0.3);
+            color: #f8fafc;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 2rem 0;
+        }
+
+        /* Tags de habilidades */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            min-height: 2.8rem;
+            padding: 0.5rem 0.6rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(15, 23, 42, 0.6);
+            cursor: text;
+            align-items: center;
+            transition: border-color 0.3s;
+        }
+        .tags-container:focus-within {
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: #a78bfa;
+            padding: 0.25rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.6;
+            font-size: 0.85rem;
+            line-height: 1;
+            transition: opacity 0.2s;
+        }
+        .tag-remove:hover { opacity: 1; color: #f87171; }
+        .tag-input {
+            flex: 1;
+            min-width: 140px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #f8fafc;
+            font-size: 0.95rem;
+            font-family: 'Outfit', sans-serif;
+            padding: 0.2rem 0.3rem;
+        }
+        .tags-hint {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.3rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="/trabalhos" class="logo" style="text-decoration: none;">FazFreela</a>
+            <span style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); display: inline-block;"></span>
+            <span style="font-weight: 600; color: #f8fafc; font-size: 0.95rem;">Olá, <span th:text="${session.nome}" style="color: #a78bfa;">Trabalhador</span> 👋</span>
+        </div>
+        <div class="nav-links" style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="/trabalhos" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Vagas</a>
+            <a href="/meus-trabalhos" style="color: #f8fafc; text-decoration: none; font-weight: 600;">Meus Trabalhos</a>
+            <a href="/perfil" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Meu Perfil</a>
+            <a href="/logout" style="color: #f87171; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#f87171'">Sair</a>
+        </div>
+    </nav>
+
+    <div class="edit-wrapper">
+        <div class="edit-card">
+
+            <div class="edit-header">
+                <div class="edit-icon">✏️</div>
+                <div>
+                    <h1>Editar Anúncio</h1>
+                    <p>Atualize as informações da sua vaga</p>
+                </div>
+            </div>
+
+            <div th:if="${erro}" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; font-weight: 600;" th:text="${erro}"></div>
+
+            <form th:action="@{/trabalhos/editar/{id}(id=${trabalho.id})}" method="post">
+
+                <div class="form-group">
+                    <label for="titulo">Título do Anúncio</label>
+                    <input type="text" id="titulo" name="titulo" th:value="${trabalho.titulo}" placeholder="Ex: Preciso de pintor para apartamento" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao" th:text="${trabalho.descricao}" placeholder="Descreva detalhes do serviço, requisitos, etc." required></textarea>
+                </div>
+
+                <hr class="divider">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cidade">Cidade</label>
+                        <input type="text" id="cidade" name="cidade" th:value="${trabalho.cidade}" placeholder="Ex: São Paulo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado (UF)</label>
+                        <input type="text" id="estado" name="estado" th:value="${trabalho.estado}" placeholder="Ex: SP" maxlength="2" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valor">Valor (R$)</label>
+                        <input type="number" id="valor" name="valor" th:value="${trabalho.valor}" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataServico">Data do Serviço</label>
+                        <input type="datetime-local" id="dataServico" name="dataServico"
+                               th:value="${trabalho.dataServico != null ? #temporals.format(trabalho.dataServico, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="horasJornada">Quantidade de Horas (Jornada)</label>
+                        <input type="number" id="horasJornada" name="horasJornada" th:value="${trabalho.horasJornada}" min="1" placeholder="Ex: 8" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="position: relative; grid-column: span 2;">
+                        <label>Habilidades Exigidas</label>
+                        <div class="tags-container" id="tagsContainer" onclick="document.getElementById('tagInput').focus()">
+                            <input type="text" id="tagInput" class="tag-input"
+                                   placeholder="Digite para buscar serviços e qualificações..." autocomplete="off">
+                        </div>
+                        <div id="habilidadesDropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: #1e293b; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; margin-top: 0.2rem; z-index: 50; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);"></div>
+                        <span class="tags-hint">
+                            Adicione as habilidades exigidas para melhorar o Match com os freelancers. Pressione <kbd>Enter</kbd> ou clique para selecionar.
+                        </span>
+                        <input type="hidden" id="habilidadesExigidas" name="habilidadesExigidas" required th:value="${trabalho.habilidadesExigidas}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="ABERTO" th:selected="${trabalho.status == 'ABERTO'}">Aberto</option>
+                            <option value="FECHADO" th:selected="${trabalho.status == 'FECHADO'}">Fechado</option>
+                            <option value="CONCLUIDO" th:selected="${trabalho.status == 'CONCLUIDO'}">Concluído</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <a href="/meus-trabalhos" class="btn-cancel">← Cancelar</a>
+                    <button type="submit" class="btn-save">💾 Salvar Alterações</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // === Sistema de Tags de Habilidades ===
+        const tagsContainer    = document.getElementById('tagsContainer');
+        const tagInput         = document.getElementById('tagInput');
+        const habilidadesInput = document.getElementById('habilidadesExigidas');
+        const dropdownHabilidades = document.getElementById('habilidadesDropdown');
+
+        let tags = [];
+        const userHabilidades  = /*[[${trabalho.habilidadesExigidas}]]*/ null;
+
+        if (userHabilidades) {
+            userHabilidades.split(',').map(h => h.trim()).filter(Boolean).forEach(addTag);
+        }
+
+        function addTag(text) {
+            const val = text.trim();
+            if (!val || tags.map(t => t.toLowerCase()).includes(val.toLowerCase())) return;
+            tags.push(val);
+
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.innerHTML = `${val} <span class="tag-remove" onclick="removeTag(this, '${val}')">✕</span>`;
+            tagsContainer.insertBefore(span, tagInput);
+
+            syncInput();
+            tagInput.value = '';
+        }
+
+        function removeTag(el, val) {
+            tags = tags.filter(t => t !== val);
+            el.parentElement.remove();
+            syncInput();
+        }
+
+        function syncInput() {
+            habilidadesInput.value = tags.join(', ');
+        }
+
+        tagInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                if (tagInput.value.trim()) {
+                    addTag(tagInput.value);
+                    dropdownHabilidades.style.display = 'none';
+                }
+            } else if (e.key === 'Backspace' && tagInput.value === '' && tags.length > 0) {
+                const allTags = tagsContainer.querySelectorAll('.tag');
+                const last = allTags[allTags.length - 1];
+                if (last) {
+                    tags.pop();
+                    last.remove();
+                    syncInput();
+                }
+            }
+        });
+
+        document.querySelector('form').addEventListener('keydown', e => {
+            if(e.key === 'Enter' && e.target.id === 'tagInput') {
+                e.preventDefault();
+            }
+        });
+
+        let servicosDisponiveis = [
+            'Encanador', 'Eletricista', 'Pintor', 'Pedreiro', 'Marceneiro', 
+            'Jardineiro', 'Diarista', 'Montador de Móveis', 'Mecânico', 'Marido de Aluguel',
+            'Desenvolvedor Web', 'Designer Gráfico', 'Redator', 'Editor de Vídeo', 
+            'Marketing Digital', 'Tradutor', 'Assistente Virtual', 'Programador Java',
+            'Desenvolvedor Frontend', 'Gestor de Tráfego', 'Fotógrafo', 'Ilustrador', 'UI/UX'
+        ];
+
+        async function carregarServicosParaDropdown() {
+            try {
+                const response = await fetch('http://localhost:3333/api/trabalhos');
+                if (response.ok) {
+                    const trabalhos = await response.json();
+                    let sugestoes = new Set(servicosDisponiveis);
+                    trabalhos.forEach(t => {
+                        if (t.titulo) sugestoes.add(t.titulo);
+                        if (t.habilidadesExigidas) {
+                            t.habilidadesExigidas.split(',').forEach(h => sugestoes.add(h.trim()));
+                        }
+                    });
+                    servicosDisponiveis = Array.from(sugestoes).filter(Boolean);
+                }
+            } catch (error) {
+                console.log('API offline, usando lista base');
+            }
+        }
+        carregarServicosParaDropdown();
+
+        tagInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            dropdownHabilidades.innerHTML = '';
+            
+            if (!query) {
+                dropdownHabilidades.style.display = 'none';
+                return;
+            }
+
+            const matches = servicosDisponiveis.filter(servico => 
+                servico.toLowerCase().includes(query) && 
+                !tags.map(t => t.toLowerCase()).includes(servico.toLowerCase())
+            );
+
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    const item = document.createElement('div');
+                    item.textContent = match;
+                    item.style.padding = '0.8rem';
+                    item.style.cursor = 'pointer';
+                    item.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                    
+                    item.addEventListener('mouseover', () => item.style.background = 'rgba(139, 92, 246, 0.2)');
+                    item.addEventListener('mouseout', () => item.style.background = 'transparent');
+                    
+                    item.addEventListener('click', () => {
+                        addTag(match);
+                        dropdownHabilidades.style.display = 'none';
+                    });
+                    dropdownHabilidades.appendChild(item);
+                });
+                dropdownHabilidades.style.display = 'block';
+            } else {
+                const item = document.createElement('div');
+                item.innerHTML = `<em>Adicionar "${e.target.value}"</em>`;
+                item.style.padding = '0.8rem';
+                item.style.cursor = 'pointer';
+                item.style.color = '#a78bfa';
+                
+                item.addEventListener('mouseover', () => item.style.background = 'rgba(139, 92, 246, 0.1)');
+                item.addEventListener('mouseout', () => item.style.background = 'transparent');
+                
+                item.addEventListener('click', () => {
+                    addTag(e.target.value);
+                    dropdownHabilidades.style.display = 'none';
+                });
+                dropdownHabilidades.appendChild(item);
+                dropdownHabilidades.style.display = 'block';
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!tagInput.contains(e.target) && !dropdownHabilidades.contains(e.target)) {
+                dropdownHabilidades.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

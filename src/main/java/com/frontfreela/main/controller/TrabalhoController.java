@@ -1,5 +1,6 @@
 package com.frontfreela.main.controller;
 
+import com.frontfreela.main.model.AvaliacaoBean;
 import com.frontfreela.main.model.CandidaturaBean;
 import com.frontfreela.main.model.TrabalhoBean;
 import com.frontfreela.main.service.AuthRestClientService;
@@ -9,6 +10,10 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 
 @Controller
@@ -21,10 +26,19 @@ public class TrabalhoController {
     }
 
     @GetMapping("/trabalhos")
-    public String listarTrabalhos(HttpSession session, Model model) {
+    public String listarTrabalhos(HttpSession session, Model model,
+                                  @RequestParam(value = "erro", required = false) String erro,
+                                  @RequestParam(value = "sucesso", required = false) String sucesso) {
         String token = (String) session.getAttribute("token");
         if (token == null) {
             return "redirect:/login";
+        }
+
+        if (erro != null) {
+            model.addAttribute("erroURL", erro);
+        }
+        if (sucesso != null) {
+            model.addAttribute("sucessoURL", sucesso);
         }
 
         try {
@@ -45,11 +59,31 @@ public class TrabalhoController {
     }
 
     @GetMapping("/meus-trabalhos")
-    public String meusTrabalhos(HttpSession session, Model model) {
+    public String meusTrabalhos(HttpSession session, Model model,
+                                @RequestParam(value = "editado", required = false) String editado,
+                                @RequestParam(value = "avaliarTrabalho", required = false) Long avaliarTrabalho,
+                                @RequestParam(value = "avaliado", required = false) String avaliado,
+                                @RequestParam(value = "erroAvaliacao", required = false) String erroAvaliacao) {
         String token = (String) session.getAttribute("token");
         if (token == null) {
             return "redirect:/login";
         }
+
+        if ("true".equals(editado)) {
+            model.addAttribute("sucesso", "Anúncio atualizado com sucesso! ✅");
+        }
+        if ("true".equals(avaliado)) {
+            model.addAttribute("sucesso", "Avaliação enviada com sucesso! ⭐");
+        }
+        if (erroAvaliacao != null) {
+            model.addAttribute("erro", erroAvaliacao);
+        }
+        if (avaliarTrabalho != null) {
+            model.addAttribute("avaliarTrabalho", avaliarTrabalho);
+            model.addAttribute("sucesso", "Trabalho concluído! Por favor, avalie o profissional.");
+        }
+
+        // Flash attributes (sucesso/erro) are automatically merged into model by Spring MVC
 
         try {
             List<TrabalhoBean> trabalhosCriados = authService.listarMeusTrabalhos(token);
@@ -68,5 +102,270 @@ public class TrabalhoController {
         }
 
         return "meus-trabalhos";
+    }
+
+    @GetMapping("/trabalhos/editar/{id}")
+    public String editarTrabalhoForm(@PathVariable Long id, HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            TrabalhoBean trabalho = authService.buscarTrabalhoPorId(id, token);
+            model.addAttribute("trabalho", trabalho);
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
+                session.invalidate();
+                return "redirect:/login";
+            }
+            return "redirect:/meus-trabalhos";
+        } catch (Exception e) {
+            return "redirect:/meus-trabalhos";
+        }
+
+        return "editar-trabalho";
+    }
+
+    @PostMapping("/trabalhos/editar/{id}")
+    public String editarTrabalhoSalvar(@PathVariable Long id,
+                                       @ModelAttribute TrabalhoBean trabalho,
+                                       HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            authService.atualizarTrabalho(id, trabalho, token);
+            return "redirect:/meus-trabalhos?editado=true";
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
+                session.invalidate();
+                return "redirect:/login";
+            }
+            model.addAttribute("erro", "Erro ao salvar as alterações. Tente novamente.");
+            model.addAttribute("trabalho", trabalho);
+            return "editar-trabalho";
+        } catch (Exception e) {
+            model.addAttribute("erro", "Erro ao salvar as alterações. Tente novamente.");
+            model.addAttribute("trabalho", trabalho);
+            return "editar-trabalho";
+        }
+    }
+
+    @PostMapping("/trabalhos/candidatar/{id}")
+    public String candidatar(@PathVariable Long id, HttpSession session, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            authService.candidatar(id, token);
+            redirectAttributes.addAttribute("sucesso", "Candidatura registrada com sucesso!");
+            return "redirect:/trabalhos";
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
+                session.invalidate();
+                return "redirect:/login";
+            }
+            String errorMsg = e.getResponseBodyAsString();
+            if (errorMsg != null && (errorMsg.contains("Você não pode") || errorMsg.contains("Voce nao pode"))) {
+                redirectAttributes.addAttribute("erro", "Você não pode se candidatar ao seu próprio anúncio.");
+                return "redirect:/trabalhos";
+            } else if (errorMsg != null && errorMsg.contains("recebendo candidaturas")) {
+                redirectAttributes.addAttribute("erro", "Este anúncio não está mais recebendo candidaturas.");
+                return "redirect:/trabalhos";
+            } else if (e.getStatusCode() == HttpStatusCode.valueOf(400)) {
+                redirectAttributes.addAttribute("erro", "Não foi possível realizar a candidatura.");
+                return "redirect:/trabalhos";
+            }
+            redirectAttributes.addAttribute("erro", "Erro ao se candidatar.");
+            return "redirect:/trabalhos";
+        } catch (Exception e) {
+            redirectAttributes.addAttribute("erro", "Erro interno ao se candidatar. Tente novamente.");
+            return "redirect:/trabalhos";
+        }
+    }
+
+    @GetMapping("/trabalhos/{id}/candidatos")
+    public String verCandidatos(@PathVariable Long id, HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        try {
+            TrabalhoBean trabalho = authService.buscarTrabalhoPorId(id, token);
+            List<CandidaturaBean> candidaturas = authService.listarCandidaturasDoTrabalho(id, token);
+            model.addAttribute("trabalho", trabalho);
+            model.addAttribute("candidaturas", candidaturas);
+            return "candidatos";
+        } catch (Exception e) {
+            return "redirect:/meus-trabalhos";
+        }
+    }
+
+    @PostMapping("/trabalhos/{id}/candidatos/{cId}/aprovar")
+    public String aprovarCandidato(@PathVariable Long id, @PathVariable Long cId, HttpSession session) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        try {
+            authService.aprovarCandidatura(cId, id, token);
+            return "redirect:/meus-trabalhos";
+        } catch (Exception e) {
+            return "redirect:/trabalhos/" + id + "/candidatos";
+        }
+    }
+
+    @PostMapping("/trabalhos/{id}/concluir")
+    public String concluirTrabalho(@PathVariable Long id, HttpSession session) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        try {
+            authService.concluirTrabalho(id, token);
+            return "redirect:/meus-trabalhos?avaliarTrabalho=" + id;
+        } catch (Exception e) {
+            return "redirect:/meus-trabalhos";
+        }
+    }
+
+    @GetMapping("/trabalhos/novo")
+    public String novoTrabalhoForm(HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("trabalho", new TrabalhoBean());
+        return "novo-trabalho";
+    }
+
+    @PostMapping("/trabalhos/novo")
+    public String novoTrabalhoCriar(@ModelAttribute TrabalhoBean trabalho, HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        try {
+            authService.criarTrabalho(trabalho, token);
+            return "redirect:/meus-trabalhos?editado=true";
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
+                session.invalidate();
+                return "redirect:/login";
+            }
+            model.addAttribute("erro", "Erro ao criar o anúncio. Verifique os dados e tente novamente.");
+            model.addAttribute("trabalho", trabalho);
+            return "novo-trabalho";
+        } catch (Exception e) {
+            model.addAttribute("erro", "Erro interno ao criar o anúncio. Tente novamente.");
+            model.addAttribute("trabalho", trabalho);
+            return "novo-trabalho";
+        }
+    }
+
+    @PostMapping("/avaliacoes/criar")
+    public String criarAvaliacao(@RequestParam Integer nota,
+                                 @RequestParam Long trabalhoId,
+                                 HttpSession session) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        try {
+            AvaliacaoBean avaliacao = new AvaliacaoBean();
+            avaliacao.setNota(nota);
+            TrabalhoBean trabalho = new TrabalhoBean();
+            trabalho.setId(trabalhoId);
+            avaliacao.setTrabalho(trabalho);
+            authService.criarAvaliacao(avaliacao, token);
+            return "redirect:/meus-trabalhos?avaliado=true";
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
+                session.invalidate();
+                return "redirect:/login";
+            }
+            return "redirect:/meus-trabalhos?erroAvaliacao=Erro ao enviar avaliação.";
+        } catch (Exception e) {
+            return "redirect:/meus-trabalhos?erroAvaliacao=Erro interno ao avaliar.";
+        }
+    }
+
+    @PostMapping("/trabalhos/excluir/{id}")
+    public String excluirTrabalho(@PathVariable Long id, HttpSession session, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        try {
+            authService.deletarTrabalho(id, token);
+            redirectAttributes.addAttribute("sucesso", "Trabalho excluído com sucesso!");
+            return "redirect:/meus-trabalhos";
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
+                session.invalidate();
+                return "redirect:/login";
+            }
+            redirectAttributes.addAttribute("erroAvaliacao", "Erro ao excluir: " + e.getResponseBodyAsString());
+            return "redirect:/meus-trabalhos";
+        } catch (Exception e) {
+            redirectAttributes.addAttribute("erroAvaliacao", "Erro interno ao excluir trabalho.");
+            return "redirect:/meus-trabalhos";
+        }
+    }
+
+    @PostMapping("/candidaturas/cancelar/{id}")
+    public String cancelarCandidatura(@PathVariable Long id, HttpSession session, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        try {
+            authService.deletarCandidatura(id, token);
+            redirectAttributes.addFlashAttribute("sucesso", "Candidatura cancelada com sucesso!");
+            return "redirect:/meus-trabalhos";
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
+                session.invalidate();
+                return "redirect:/login";
+            }
+            String errorMsg = e.getResponseBodyAsString();
+            if (errorMsg != null && errorMsg.contains("aprovado")) {
+                redirectAttributes.addFlashAttribute("erro", "Você já foi aprovado. Para desistir, use a opção 'Desistir do Trabalho'.");
+            } else {
+                redirectAttributes.addFlashAttribute("erro", "Erro ao cancelar candidatura: " + errorMsg);
+            }
+            return "redirect:/meus-trabalhos";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Erro interno ao cancelar candidatura.");
+            return "redirect:/meus-trabalhos";
+        }
+    }
+
+    @PostMapping("/trabalhos/{id}/desistir")
+    public String desistirDoTrabalho(@PathVariable Long id, HttpSession session, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        try {
+            authService.desistirDoTrabalho(id, token);
+            redirectAttributes.addFlashAttribute("sucesso", "Desistência registrada. O trabalho voltou para ABERTO e novas candidaturas poderão ser aprovadas.");
+            return "redirect:/meus-trabalhos";
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
+                session.invalidate();
+                return "redirect:/login";
+            }
+            redirectAttributes.addFlashAttribute("erro", "Erro ao desistir: " + e.getResponseBodyAsString());
+            return "redirect:/meus-trabalhos";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("erro", "Erro interno ao registrar desistência.");
+            return "redirect:/meus-trabalhos";
+        }
     }
 }

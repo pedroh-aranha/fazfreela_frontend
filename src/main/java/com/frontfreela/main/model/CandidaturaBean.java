@@ -13,6 +13,7 @@ public class CandidaturaBean {
     private UsuarioBean trabalhador;
     private LocalDate dataCandidatura;
     private String status = "PENDENTE";
+    private Double matchScore;
 
     public CandidaturaBean() {
     }
@@ -63,5 +64,13 @@ public class CandidaturaBean {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Double getMatchScore() {
+        return matchScore;
+    }
+
+    public void setMatchScore(Double matchScore) {
+        this.matchScore = matchScore;
     }
 }
