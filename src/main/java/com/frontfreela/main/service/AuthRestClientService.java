@@ -67,6 +67,14 @@ public class AuthRestClientService {
                 .body(UsuarioBean.class);
     }
 
+    public UsuarioBean buscarPerfilPublico(Long id, String token) {
+        return restClient.get()
+                .uri("/usuarios/" + id)
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .body(UsuarioBean.class);
+    }
+
     public List<TrabalhoBean> listarMeusTrabalhos(String token) {
         TrabalhoBean[] trabalhos = restClient.get()
                 .uri("/trabalhos/meus")
@@ -150,6 +158,30 @@ public class AuthRestClientService {
                 .uri("/trabalhos/criar")
                 .header("Authorization", "Bearer " + token)
                 .body(trabalho)
+                .retrieve()
+                .body(String.class);
+    }
+
+    public void deletarTrabalho(Long id, String token) {
+        restClient.delete()
+                .uri("/trabalhos/" + id)
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .body(String.class);
+    }
+
+    public void deletarCandidatura(Long id, String token) {
+        restClient.delete()
+                .uri("/candidaturas/" + id)
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .body(String.class);
+    }
+
+    public void desistirDoTrabalho(Long trabalhoId, String token) {
+        restClient.put()
+                .uri("/trabalhos/" + trabalhoId + "/desistir")
+                .header("Authorization", "Bearer " + token)
                 .retrieve()
                 .body(String.class);
     }

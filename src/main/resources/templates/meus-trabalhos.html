@@ -98,6 +98,7 @@
         .status-badge.pendente { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
         .status-badge.aprovado { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
         .status-badge.concluido { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .status-badge.rejeitado { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
         .item-value {
             font-size: 1.5rem;
@@ -116,7 +117,7 @@
         }
 
         /* Botões de ação nos items */
-        .btn-ver-candidatos, .btn-concluir, .btn-edit {
+        .btn-ver-candidatos, .btn-concluir, .btn-edit, .btn-excluir, .btn-desistir, .btn-cancelar-cand {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
@@ -159,6 +160,36 @@
         .btn-edit:hover {
             background: rgba(248, 250, 252, 0.15);
             color: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        .btn-excluir {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+        .btn-excluir:hover {
+            background: rgba(239, 68, 68, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .btn-desistir {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+        }
+        .btn-desistir:hover {
+            background: rgba(245, 158, 11, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .btn-cancelar-cand {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+        .btn-cancelar-cand:hover {
+            background: rgba(239, 68, 68, 0.25);
             transform: translateY(-1px);
         }
 
@@ -305,12 +336,24 @@
                     <h3 th:text="${c.trabalho.titulo}">Título do Freela</h3>
                     <p>📍 <span th:text="${c.trabalho.cidade} + ' - ' + ${c.trabalho.estado}">Local</span> &nbsp; | &nbsp; 📅 Candidatou-se em: <span th:text="${#temporals.format(c.dataCandidatura, 'dd/MM/yyyy')}">Data</span> <span th:if="${c.trabalho.horasJornada != null}">&nbsp; | &nbsp; ⏱️ <span th:text="${c.trabalho.horasJornada} + 'h'"></span></span></p>
                     <span class="status-badge" 
-                          th:classappend="${c.status == 'PENDENTE' ? 'pendente' : (c.status == 'APROVADO' ? 'aprovado' : 'concluido')}" 
+                          th:classappend="${c.status == 'PENDENTE' ? 'pendente' : (c.status == 'APROVADO' ? 'aprovado' : (c.status == 'REJEITADO' ? 'rejeitado' : 'concluido'))}" 
                           th:text="${c.status}">PENDENTE</span>
                 </div>
-                <div class="item-value">
-                    <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Valor</div>
-                    R$ <span th:text="${c.trabalho.valor}">0.00</span>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem;">
+                    <div class="item-value">
+                        <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Valor</div>
+                        R$ <span th:text="${c.trabalho.valor}">0.00</span>
+                    </div>
+                    <!-- Desistir: só para candidaturas APROVADO -->
+                    <form th:if="${c.status == 'APROVADO'}" th:action="@{/trabalhos/{id}/desistir(id=${c.trabalho.id})}" method="post" style="margin: 0;"
+                          onsubmit="return confirm('Tem certeza que deseja desistir deste trabalho? O trabalho voltará para ABERTO.')">
+                        <button type="submit" class="btn-desistir">🚪 Desistir do Trabalho</button>
+                    </form>
+                    <!-- Cancelar: só para candidaturas PENDENTE ou REJEITADO -->
+                    <form th:if="${c.status == 'PENDENTE' or c.status == 'REJEITADO'}" th:action="@{/candidaturas/cancelar/{id}(id=${c.id})}" method="post" style="margin: 0;"
+                          onsubmit="return confirm('Tem certeza que deseja cancelar esta candidatura?')">
+                        <button type="submit" class="btn-cancelar-cand">✖ Cancelar Candidatura</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -333,14 +376,20 @@
                           th:classappend="${t.status == 'ABERTO' ? 'aprovado' : (t.status == 'EM_ANDAMENTO' ? 'pendente' : 'concluido')}" 
                           th:text="${t.status}">ABERTO</span>
                 </div>
-                <div class="item-actions" style="display: flex; gap: 0.5rem; align-items: center;">
+                <div class="item-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
                     <a th:if="${t.status == 'ABERTO'}" th:href="@{/trabalhos/{id}/candidatos(id=${t.id})}" class="btn-ver-candidatos">👥 Candidatos</a>
                     
                     <form th:if="${t.status == 'EM_ANDAMENTO'}" th:action="@{/trabalhos/{id}/concluir(id=${t.id})}" method="post" style="margin: 0;">
                         <button type="submit" class="btn-concluir">✅ Concluir Trabalho</button>
                     </form>
 
-                    <a th:href="@{/trabalhos/editar/{id}(id=${t.id})}" class="btn-edit">✏️ Editar</a>
+                    <a th:if="${t.status != 'CONCLUIDO'}" th:href="@{/trabalhos/editar/{id}(id=${t.id})}" class="btn-edit">✏️ Editar</a>
+
+                    <!-- Excluir: só para trabalhos ABERTO ou CONCLUIDO (não EM_ANDAMENTO) -->
+                    <form th:if="${t.status != 'EM_ANDAMENTO'}" th:action="@{/trabalhos/excluir/{id}(id=${t.id})}" method="post" style="margin: 0;"
+                          onsubmit="return confirm('Tem certeza que deseja excluir este trabalho? Esta ação não pode ser desfeita.')">
+                        <button type="submit" class="btn-excluir">🗑 Excluir</button>
+                    </form>
                 </div>
                 <div class="item-value" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
                     <div>

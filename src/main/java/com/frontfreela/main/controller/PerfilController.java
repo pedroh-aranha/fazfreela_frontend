@@ -44,6 +44,27 @@ public class PerfilController {
         return "perfil";
     }
 
+    @GetMapping("/perfil/{id}")
+    public String perfilPublico(@org.springframework.web.bind.annotation.PathVariable Long id, HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+        try {
+            UsuarioBean usuario = authService.buscarPerfilPublico(id, token);
+            model.addAttribute("usuario", usuario);
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
+                session.invalidate();
+                return "redirect:/login";
+            }
+            model.addAttribute("erro", "Erro ao carregar o perfil.");
+        } catch (Exception e) {
+            model.addAttribute("erro", "Erro ao carregar o perfil.");
+        }
+        return "perfil-publico";
+    }
+
     @PostMapping("/perfil/atualizar")
     public String atualizarPerfil(@ModelAttribute UsuarioBean usuarioForm, HttpSession session, Model model) {
         String token = (String) session.getAttribute("token");

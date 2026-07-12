@@ -155,6 +155,62 @@
             border-top: 1px solid rgba(255,255,255,0.06);
             margin: 2rem 0;
         }
+
+        /* Tags de habilidades */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            min-height: 2.8rem;
+            padding: 0.5rem 0.6rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(15, 23, 42, 0.6);
+            cursor: text;
+            align-items: center;
+            transition: border-color 0.3s;
+        }
+        .tags-container:focus-within {
+            border-color: rgba(139, 92, 246, 0.6);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            color: #a78bfa;
+            padding: 0.25rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.6;
+            font-size: 0.85rem;
+            line-height: 1;
+            transition: opacity 0.2s;
+        }
+        .tag-remove:hover { opacity: 1; color: #f87171; }
+        .tag-input {
+            flex: 1;
+            min-width: 140px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #f8fafc;
+            font-size: 0.95rem;
+            font-family: 'Outfit', sans-serif;
+            padding: 0.2rem 0.3rem;
+        }
+        .tags-hint {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.3rem;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -231,10 +287,21 @@
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="habilidadesExigidas">Habilidades Exigidas (separadas por vírgula)</label>
-                        <input type="text" id="habilidadesExigidas" name="habilidadesExigidas" th:value="${trabalho.habilidadesExigidas}" placeholder="Ex: java, backend, sql" required>
+                    <div class="form-group" style="position: relative; grid-column: span 2;">
+                        <label>Habilidades Exigidas</label>
+                        <div class="tags-container" id="tagsContainer" onclick="document.getElementById('tagInput').focus()">
+                            <input type="text" id="tagInput" class="tag-input"
+                                   placeholder="Digite para buscar serviços e qualificações..." autocomplete="off">
+                        </div>
+                        <div id="habilidadesDropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: #1e293b; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; margin-top: 0.2rem; z-index: 50; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);"></div>
+                        <span class="tags-hint">
+                            Adicione as habilidades exigidas para melhorar o Match com os freelancers. Pressione <kbd>Enter</kbd> ou clique para selecionar.
+                        </span>
+                        <input type="hidden" id="habilidadesExigidas" name="habilidadesExigidas" required th:value="${trabalho.habilidadesExigidas}">
                     </div>
+                </div>
+
+                <div class="form-row">
                     <div class="form-group">
                         <label for="status">Status</label>
                         <select id="status" name="status">
@@ -254,5 +321,152 @@
         </div>
     </div>
 
+    <script th:inline="javascript">
+        // === Sistema de Tags de Habilidades ===
+        const tagsContainer    = document.getElementById('tagsContainer');
+        const tagInput         = document.getElementById('tagInput');
+        const habilidadesInput = document.getElementById('habilidadesExigidas');
+        const dropdownHabilidades = document.getElementById('habilidadesDropdown');
+
+        let tags = [];
+        const userHabilidades  = /*[[${trabalho.habilidadesExigidas}]]*/ null;
+
+        if (userHabilidades) {
+            userHabilidades.split(',').map(h => h.trim()).filter(Boolean).forEach(addTag);
+        }
+
+        function addTag(text) {
+            const val = text.trim();
+            if (!val || tags.map(t => t.toLowerCase()).includes(val.toLowerCase())) return;
+            tags.push(val);
+
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.innerHTML = `${val} <span class="tag-remove" onclick="removeTag(this, '${val}')">✕</span>`;
+            tagsContainer.insertBefore(span, tagInput);
+
+            syncInput();
+            tagInput.value = '';
+        }
+
+        function removeTag(el, val) {
+            tags = tags.filter(t => t !== val);
+            el.parentElement.remove();
+            syncInput();
+        }
+
+        function syncInput() {
+            habilidadesInput.value = tags.join(', ');
+        }
+
+        tagInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                if (tagInput.value.trim()) {
+                    addTag(tagInput.value);
+                    dropdownHabilidades.style.display = 'none';
+                }
+            } else if (e.key === 'Backspace' && tagInput.value === '' && tags.length > 0) {
+                const allTags = tagsContainer.querySelectorAll('.tag');
+                const last = allTags[allTags.length - 1];
+                if (last) {
+                    tags.pop();
+                    last.remove();
+                    syncInput();
+                }
+            }
+        });
+
+        document.querySelector('form').addEventListener('keydown', e => {
+            if(e.key === 'Enter' && e.target.id === 'tagInput') {
+                e.preventDefault();
+            }
+        });
+
+        let servicosDisponiveis = [
+            'Encanador', 'Eletricista', 'Pintor', 'Pedreiro', 'Marceneiro', 
+            'Jardineiro', 'Diarista', 'Montador de Móveis', 'Mecânico', 'Marido de Aluguel',
+            'Desenvolvedor Web', 'Designer Gráfico', 'Redator', 'Editor de Vídeo', 
+            'Marketing Digital', 'Tradutor', 'Assistente Virtual', 'Programador Java',
+            'Desenvolvedor Frontend', 'Gestor de Tráfego', 'Fotógrafo', 'Ilustrador', 'UI/UX'
+        ];
+
+        async function carregarServicosParaDropdown() {
+            try {
+                const response = await fetch('http://localhost:3333/api/trabalhos');
+                if (response.ok) {
+                    const trabalhos = await response.json();
+                    let sugestoes = new Set(servicosDisponiveis);
+                    trabalhos.forEach(t => {
+                        if (t.titulo) sugestoes.add(t.titulo);
+                        if (t.habilidadesExigidas) {
+                            t.habilidadesExigidas.split(',').forEach(h => sugestoes.add(h.trim()));
+                        }
+                    });
+                    servicosDisponiveis = Array.from(sugestoes).filter(Boolean);
+                }
+            } catch (error) {
+                console.log('API offline, usando lista base');
+            }
+        }
+        carregarServicosParaDropdown();
+
+        tagInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            dropdownHabilidades.innerHTML = '';
+            
+            if (!query) {
+                dropdownHabilidades.style.display = 'none';
+                return;
+            }
+
+            const matches = servicosDisponiveis.filter(servico => 
+                servico.toLowerCase().includes(query) && 
+                !tags.map(t => t.toLowerCase()).includes(servico.toLowerCase())
+            );
+
+            if (matches.length > 0) {
+                matches.forEach(match => {
+                    const item = document.createElement('div');
+                    item.textContent = match;
+                    item.style.padding = '0.8rem';
+                    item.style.cursor = 'pointer';
+                    item.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                    
+                    item.addEventListener('mouseover', () => item.style.background = 'rgba(139, 92, 246, 0.2)');
+                    item.addEventListener('mouseout', () => item.style.background = 'transparent');
+                    
+                    item.addEventListener('click', () => {
+                        addTag(match);
+                        dropdownHabilidades.style.display = 'none';
+                    });
+                    dropdownHabilidades.appendChild(item);
+                });
+                dropdownHabilidades.style.display = 'block';
+            } else {
+                const item = document.createElement('div');
+                item.innerHTML = `<em>Adicionar "${e.target.value}"</em>`;
+                item.style.padding = '0.8rem';
+                item.style.cursor = 'pointer';
+                item.style.color = '#a78bfa';
+                
+                item.addEventListener('mouseover', () => item.style.background = 'rgba(139, 92, 246, 0.1)');
+                item.addEventListener('mouseout', () => item.style.background = 'transparent');
+                
+                item.addEventListener('click', () => {
+                    addTag(e.target.value);
+                    dropdownHabilidades.style.display = 'none';
+                });
+                dropdownHabilidades.appendChild(item);
+                dropdownHabilidades.style.display = 'block';
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!tagInput.contains(e.target) && !dropdownHabilidades.contains(e.target)) {
+                dropdownHabilidades.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>

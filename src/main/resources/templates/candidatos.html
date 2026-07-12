@@ -55,7 +55,9 @@
 
         <div th:each="c : ${candidaturas}" class="candidate-card">
             <div class="candidate-info">
-                <h3 th:text="${c.trabalhador.nome}">Nome do Freelancer</h3>
+                <h3>
+                    <a th:href="@{/perfil/{id}(id=${c.trabalhador.id})}" style="color: #fff; text-decoration: none; border-bottom: 2px solid transparent; transition: border-color 0.3s;" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='transparent'" th:text="${c.trabalhador.nome}">Nome do Freelancer</a>
+                </h3>
                 <p>📍 <span th:text="${c.trabalhador.cidade} + ' - ' + ${c.trabalhador.estado}">Local</span></p>
                 <div class="star-rating">
                     ⭐ <span th:text="${c.trabalhador.notaMedia != null ? c.trabalhador.notaMedia : 'Novo'}">4.8</span>
