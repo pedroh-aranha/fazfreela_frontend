@@ -12,6 +12,7 @@ public class TrabalhoBean {
     private Long id;
     private String titulo;
     private String descricao;
+    private String endereco;
     private String cidade;
     private String estado;
     private LocalDateTime dataServico;
@@ -122,5 +123,13 @@ public class TrabalhoBean {
 
     public void setHabilidadesExigidas(String habilidadesExigidas) {
         this.habilidadesExigidas = habilidadesExigidas;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
     }
 }
