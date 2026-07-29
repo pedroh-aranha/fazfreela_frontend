@@ -43,6 +43,24 @@ public class TrabalhoController {
 
         try {
             List<TrabalhoBean> trabalhos = authService.listarTrabalhos(token);
+            
+            // Oculta trabalhos cuja data já passou
+            java.time.LocalDateTime agora = java.time.LocalDateTime.now();
+            trabalhos = trabalhos.stream()
+                    .filter(t -> t.getDataServico() == null || !t.getDataServico().isBefore(agora))
+                    .toList();
+            
+            try {
+                com.frontfreela.main.model.UsuarioBean perfil = authService.buscarPerfil(token);
+                if (perfil != null && perfil.getId() != null) {
+                    trabalhos = trabalhos.stream()
+                            .filter(t -> t.getContratante() == null || !perfil.getId().equals(t.getContratante().getId()))
+                            .toList();
+                }
+            } catch (Exception ex) {
+                // ignora o erro e mostra todos
+            }
+            
             model.addAttribute("trabalhos", trabalhos);
         } catch (HttpClientErrorException e) {
             // Token expirado ou inválido → logout automático
@@ -56,6 +74,23 @@ public class TrabalhoController {
         }
 
         return "trabalhos";
+    }
+
+    @GetMapping("/trabalhos/detalhes/{id}")
+    public String detalhesTrabalho(@PathVariable Long id, HttpSession session, Model model) {
+        String token = (String) session.getAttribute("token");
+        if (token == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            TrabalhoBean trabalho = authService.buscarTrabalhoPorId(id, token);
+            model.addAttribute("trabalho", trabalho);
+            return "detalhes-trabalho";
+        } catch (Exception e) {
+            model.addAttribute("erro", "Não foi possível carregar os detalhes deste trabalho.");
+            return "redirect:/trabalhos";
+        }
     }
 
     @GetMapping("/meus-trabalhos")
@@ -303,17 +338,29 @@ public class TrabalhoController {
         }
         try {
             authService.deletarTrabalho(id, token);
-            redirectAttributes.addAttribute("sucesso", "Trabalho excluído com sucesso!");
+            redirectAttributes.addFlashAttribute("sucesso", "Trabalho excluído com sucesso!");
             return "redirect:/meus-trabalhos";
         } catch (org.springframework.web.client.RestClientResponseException e) {
             if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
                 session.invalidate();
                 return "redirect:/login";
             }
-            redirectAttributes.addAttribute("erroAvaliacao", "Erro ao excluir: " + e.getResponseBodyAsString());
+            String errorMsg = e.getResponseBodyAsString();
+            try {
+                if (errorMsg != null && errorMsg.contains("\"message\":\"")) {
+                    int start = errorMsg.indexOf("\"message\":\"") + 11;
+                    int end = errorMsg.indexOf("\"", start);
+                    if (start != -1 && end != -1) {
+                        errorMsg = errorMsg.substring(start, end);
+                    }
+                }
+            } catch (Exception ex) {
+                // ignorar erro de parsing
+            }
+            redirectAttributes.addFlashAttribute("erro", "Erro ao excluir: " + errorMsg);
             return "redirect:/meus-trabalhos";
         } catch (Exception e) {
-            redirectAttributes.addAttribute("erroAvaliacao", "Erro interno ao excluir trabalho.");
+            redirectAttributes.addFlashAttribute("erro", "Erro interno ao excluir trabalho.");
             return "redirect:/meus-trabalhos";
         }
     }

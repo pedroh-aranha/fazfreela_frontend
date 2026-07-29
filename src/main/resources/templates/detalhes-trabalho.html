@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FazFreela - Detalhes do Serviço</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .details-wrapper {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .details-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .details-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 6px;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .back-link:hover {
+            color: #f8fafc;
+            transform: translateX(-5px);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            gap: 2rem;
+        }
+
+        .job-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #f8fafc;
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .job-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #10b981;
+            white-space: nowrap;
+        }
+
+        .price-label {
+            display: block;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            text-align: right;
+            margin-bottom: 0.2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 2.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            background: rgba(139, 92, 246, 0.15);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: #a78bfa;
+        }
+
+        .info-text h4 {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin: 0 0 0.3rem 0;
+        }
+
+        .info-text p {
+            color: #f8fafc;
+            font-weight: 500;
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .job-description {
+            color: #cbd5e1;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            white-space: pre-line;
+            background: rgba(15, 23, 42, 0.2);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 3rem;
+        }
+
+        .skill-tag {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: #a78bfa;
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+        }
+
+        .btn-apply-large {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-apply-large:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-disabled {
+            background: rgba(255,255,255,0.1);
+            color: #94a3b8;
+            cursor: not-allowed;
+            pointer-events: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="/trabalhos" class="logo" style="text-decoration: none;">FazFreela</a>
+            <span style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); display: inline-block;"></span>
+            <span style="font-weight: 600; color: #f8fafc; font-size: 0.95rem;">Olá, <span th:text="${session.nome}" style="color: #a78bfa;">Trabalhador</span> 👋</span>
+        </div>
+        <div class="nav-links" style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="/trabalhos" style="color: #f8fafc; text-decoration: none; font-weight: 600;">Vagas</a>
+            <a href="/meus-trabalhos" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Meus Trabalhos</a>
+            <a href="/perfil" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Meu Perfil</a>
+            <a href="/logout" style="color: #f87171; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#f87171'">Sair</a>
+        </div>
+    </nav>
+
+    <div class="details-wrapper">
+        <a href="/trabalhos" class="back-link">← Voltar para as vagas</a>
+
+        <div class="details-card">
+            <div class="job-header">
+                <h1 class="job-title" th:text="${trabalho.titulo}">Título do Serviço</h1>
+                <div>
+                    <span class="price-label">Valor Oferecido</span>
+                    <div class="job-price">R$ <span th:text="${trabalho.valor}"></span></div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">📍</div>
+                    <div class="info-text">
+                        <h4>Localização</h4>
+                        <p th:if="${trabalho.endereco != null && !trabalho.endereco.isEmpty()}" th:text="${trabalho.endereco}"></p>
+                        <p th:if="${trabalho.endereco == null || trabalho.endereco.isEmpty()}" th:text="${trabalho.cidade} + ' - ' + ${trabalho.estado}"></p>
+                    </div>
+                </div>
+                
+                <div class="info-item" th:if="${trabalho.dataServico != null}">
+                    <div class="info-icon">📅</div>
+                    <div class="info-text">
+                        <h4>Data Agendada</h4>
+                        <p th:text="${#temporals.format(trabalho.dataServico, 'dd/MM/yyyy')}"></p>
+                        <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 2px;">às <span th:text="${#temporals.format(trabalho.dataServico, 'HH:mm')}"></span></p>
+                    </div>
+                </div>
+
+                <div class="info-item" th:if="${trabalho.horasJornada != null}">
+                    <div class="info-icon">⏱️</div>
+                    <div class="info-text">
+                        <h4>Duração Estimada</h4>
+                        <p th:text="${trabalho.horasJornada} + ' horas'"></p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="section-title">📝 Detalhes da Demanda</h3>
+            <div class="job-description" th:text="${trabalho.descricao}">
+                Descrição detalhada do serviço...
+            </div>
+
+            <div th:if="${trabalho.habilidadesExigidas != null && !trabalho.habilidadesExigidas.isEmpty()}">
+                <h3 class="section-title">💡 Habilidades Exigidas</h3>
+                <div class="skills-container">
+                    <span th:each="skill : ${#strings.arraySplit(trabalho.habilidadesExigidas, ',')}" 
+                          class="skill-tag" 
+                          th:text="${#strings.trim(skill)}">
+                    </span>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <form th:action="@{/trabalhos/candidatar/{id}(id=${trabalho.id})}" method="post" style="margin: 0;">
+                    <button type="submit" class="btn-apply-large" th:classappend="${trabalho.status != 'ABERTO' ? 'btn-disabled' : ''}" th:disabled="${trabalho.status != 'ABERTO'}" onsubmit="return confirm('Confirmar candidatura?')">
+                        🚀 Quero me Candidatar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

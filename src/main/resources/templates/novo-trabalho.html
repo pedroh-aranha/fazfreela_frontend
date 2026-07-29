@@ -271,6 +271,12 @@
                     <div class="char-count"><span id="contDesc">0</span> / 1000</div>
                 </div>
 
+                <div class="form-group">
+                    <label for="endereco">Endereço Completo</label>
+                    <input type="text" id="endereco" name="endereco" th:value="${trabalho.endereco}"
+                           placeholder="Rua, número, complemento, bairro..." required maxlength="200">
+                </div>
+
                 <hr class="divider">
 
                 <div class="form-row">

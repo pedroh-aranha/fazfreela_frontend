@@ -334,7 +334,7 @@
             <div th:each="c : ${minhasCandidaturas}" class="list-item">
                 <div class="item-info">
                     <h3 th:text="${c.trabalho.titulo}">Título do Freela</h3>
-                    <p>📍 <span th:text="${c.trabalho.cidade} + ' - ' + ${c.trabalho.estado}">Local</span> &nbsp; | &nbsp; 📅 Candidatou-se em: <span th:text="${#temporals.format(c.dataCandidatura, 'dd/MM/yyyy')}">Data</span> <span th:if="${c.trabalho.horasJornada != null}">&nbsp; | &nbsp; ⏱️ <span th:text="${c.trabalho.horasJornada} + 'h'"></span></span></p>
+                    <p>📍 <span th:text="${c.trabalho.endereco != null && !c.trabalho.endereco.isEmpty() ? c.trabalho.endereco : (c.trabalho.cidade + ' - ' + c.trabalho.estado)}">Local</span> &nbsp; | &nbsp; 📅 Para: <span th:text="${c.trabalho.dataServico != null ? #temporals.format(c.trabalho.dataServico, 'dd/MM/yyyy HH:mm') : 'A combinar'}">Data</span> &nbsp; | &nbsp; 📅 Candidatou-se em: <span th:text="${#temporals.format(c.dataCandidatura, 'dd/MM/yyyy')}">Data</span> <span th:if="${c.trabalho.horasJornada != null}">&nbsp; | &nbsp; ⏱️ <span th:text="${c.trabalho.horasJornada} + 'h'"></span></span></p>
                     <span class="status-badge" 
                           th:classappend="${c.status == 'PENDENTE' ? 'pendente' : (c.status == 'APROVADO' ? 'aprovado' : (c.status == 'REJEITADO' ? 'rejeitado' : 'concluido'))}" 
                           th:text="${c.status}">PENDENTE</span>
@@ -385,8 +385,8 @@
 
                     <a th:if="${t.status != 'CONCLUIDO'}" th:href="@{/trabalhos/editar/{id}(id=${t.id})}" class="btn-edit">✏️ Editar</a>
 
-                    <!-- Excluir: só para trabalhos ABERTO ou CONCLUIDO (não EM_ANDAMENTO) -->
-                    <form th:if="${t.status != 'EM_ANDAMENTO'}" th:action="@{/trabalhos/excluir/{id}(id=${t.id})}" method="post" style="margin: 0;"
+                    <!-- Excluir: só para trabalhos ABERTO -->
+                    <form th:if="${t.status == 'ABERTO'}" th:action="@{/trabalhos/excluir/{id}(id=${t.id})}" method="post" style="margin: 0;"
                           onsubmit="return confirm('Tem certeza que deseja excluir este trabalho? Esta ação não pode ser desfeita.')">
                         <button type="submit" class="btn-excluir">🗑 Excluir</button>
                     </form>

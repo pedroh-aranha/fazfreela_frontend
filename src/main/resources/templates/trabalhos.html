@@ -202,19 +202,16 @@
         </div>
 
         <div class="grid">
-            <div th:each="trabalho : ${trabalhos}" class="card" th:data-estado="${trabalho.estado}" th:data-cidade="${trabalho.cidade}">
+            <div th:each="trabalho : ${trabalhos}" class="card" th:data-estado="${trabalho.estado}" th:data-cidade="${trabalho.cidade}" style="cursor: pointer;" th:onclick="'window.location.href=\'/trabalhos/detalhes/' + ${trabalho.id} + '\''">
                 <div class="card-price">
                     R$ <span th:text="${trabalho.valor}"></span>
                 </div>
                 <h2 class="card-title" th:text="${trabalho.titulo}">Título</h2>
-                <p class="card-desc" th:text="${trabalho.descricao}">Descrição...</p>
+                <div style="font-size: 0.85rem; color: var(--primary); margin-bottom: 1rem; margin-top: 0.5rem; text-decoration: underline;">Ver Detalhes do Serviço</div>
                 
-                <div class="card-footer">
+                <div class="card-footer" onclick="event.stopPropagation()">
                     <div class="location">
-                        📍 <span th:text="${trabalho.cidade} + ' - ' + ${trabalho.estado}">Local</span>
-                        <span th:if="${trabalho.horasJornada != null}" style="margin-left: 0.5rem; color: var(--text-muted);">
-                            &bull; ⏱️ <span th:text="${trabalho.horasJornada} + 'h'">Horas</span>
-                        </span>
+                        📍 <span th:text="${trabalho.endereco != null && !trabalho.endereco.isEmpty() ? trabalho.endereco : (trabalho.cidade + ' - ' + trabalho.estado)}">Endereço</span>
                     </div>
                     <form th:action="@{/trabalhos/candidatar/{id}(id=${trabalho.id})}" method="post" style="margin: 0;">
                         <button type="submit" class="btn-apply" th:data-titulo="${trabalho.titulo}">
