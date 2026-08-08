@@ -201,10 +201,16 @@
             </div>
         </div>
 
-        <div class="grid">
             <div th:each="trabalho : ${trabalhos}" class="card" th:data-estado="${trabalho.estado}" th:data-cidade="${trabalho.cidade}" style="cursor: pointer;" th:onclick="'window.location.href=\'/trabalhos/detalhes/' + ${trabalho.id} + '\''">
-                <div class="card-price">
-                    R$ <span th:text="${trabalho.valor}"></span>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div class="card-price">
+                            R$ <span th:text="${trabalho.valor}"></span> <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;">/ pessoa</span>
+                        </div>
+                    </div>
+                    <div style="background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #a78bfa; padding: 0.25rem 0.6rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700;">
+                        👥 <span th:text="${trabalho.vagas != null ? trabalho.vagas : 1}">1</span> vaga(s)
+                    </div>
                 </div>
                 <h2 class="card-title" th:text="${trabalho.titulo}">Título</h2>
                 <div style="font-size: 0.85rem; color: var(--primary); margin-bottom: 1rem; margin-top: 0.5rem; text-decoration: underline;">Ver Detalhes do Serviço</div>

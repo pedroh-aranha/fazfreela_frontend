@@ -229,9 +229,12 @@
         <div class="details-card">
             <div class="job-header">
                 <h1 class="job-title" th:text="${trabalho.titulo}">Título do Serviço</h1>
-                <div>
-                    <span class="price-label">Valor Oferecido</span>
+                <div style="text-align: right;">
+                    <span class="price-label">Valor por Pessoa</span>
                     <div class="job-price">R$ <span th:text="${trabalho.valor}"></span></div>
+                    <div th:if="${trabalho.vagas != null && trabalho.vagas > 1}" style="font-size: 0.85rem; color: #a78bfa; font-weight: 600; margin-top: 0.3rem;">
+                        (Total estimado: R$ <span th:text="${trabalho.valorTotal}"></span>)
+                    </div>
                 </div>
             </div>
 
@@ -242,6 +245,22 @@
                         <h4>Localização</h4>
                         <p th:if="${trabalho.endereco != null && !trabalho.endereco.isEmpty()}" th:text="${trabalho.endereco}"></p>
                         <p th:if="${trabalho.endereco == null || trabalho.endereco.isEmpty()}" th:text="${trabalho.cidade} + ' - ' + ${trabalho.estado}"></p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">👥</div>
+                    <div class="info-text">
+                        <h4>Vagas Necessárias</h4>
+                        <p th:text="${trabalho.vagas != null ? trabalho.vagas : 1} + ' pessoa(s)'"></p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">⏳</div>
+                    <div class="info-text">
+                        <h4>Prazo Candidatura</h4>
+                        <p th:text="${trabalho.prazoDias != null ? trabalho.prazoDias : 2} + ' dias'"></p>
                     </div>
                 </div>
                 

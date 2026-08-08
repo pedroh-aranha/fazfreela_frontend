@@ -371,7 +371,7 @@
             <div th:each="t : ${trabalhosCriados}" class="list-item">
                 <div class="item-info">
                     <h3 th:text="${t.titulo}">Título do Anúncio</h3>
-                    <p>📍 <span th:text="${t.cidade} + ' - ' + ${t.estado}">Local</span> &nbsp; | &nbsp; 📅 Para: <span th:text="${t.dataServico != null ? #temporals.format(t.dataServico, 'dd/MM/yyyy HH:mm') : 'A combinar'}">Data</span> <span th:if="${t.horasJornada != null}">&nbsp; | &nbsp; ⏱️ <span th:text="${t.horasJornada} + 'h'"></span></span></p>
+                    <p>📍 <span th:text="${t.cidade} + ' - ' + ${t.estado}">Local</span> &nbsp; | &nbsp; 👥 <span th:text="${t.vagas != null ? t.vagas : 1}">1</span> vaga(s) &nbsp; | &nbsp; 📅 Para: <span th:text="${t.dataServico != null ? #temporals.format(t.dataServico, 'dd/MM/yyyy HH:mm') : 'A combinar'}">Data</span> <span th:if="${t.horasJornada != null}">&nbsp; | &nbsp; ⏱️ <span th:text="${t.horasJornada} + 'h'"></span></span></p>
                     <span class="status-badge" 
                           th:classappend="${t.status == 'ABERTO' ? 'aprovado' : (t.status == 'EM_ANDAMENTO' ? 'pendente' : 'concluido')}" 
                           th:text="${t.status}">ABERTO</span>
@@ -393,7 +393,7 @@
                 </div>
                 <div class="item-value" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
                     <div>
-                        <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Orçamento</div>
+                        <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Valor / Pessoa</div>
                         R$ <span th:text="${t.valor}">0.00</span>
                     </div>
                 </div>

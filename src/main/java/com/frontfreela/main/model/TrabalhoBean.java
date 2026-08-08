@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.frontfreela.main.model;
 
 import java.math.BigDecimal;
@@ -21,6 +17,8 @@ public class TrabalhoBean {
     private String habilidadesExigidas;
     private String status = "ABERTO";
     private UsuarioBean contratante;
+    private Integer vagas = 1;
+    private Integer prazoDias = 2;
 
     public TrabalhoBean() {
     }
@@ -131,5 +129,28 @@ public class TrabalhoBean {
 
     public void setEndereco(String endereco) {
         this.endereco = endereco;
+    }
+
+    public Integer getVagas() {
+        return vagas;
+    }
+
+    public void setVagas(Integer vagas) {
+        this.vagas = vagas;
+    }
+
+    public Integer getPrazoDias() {
+        return prazoDias;
+    }
+
+    public void setPrazoDias(Integer prazoDias) {
+        this.prazoDias = prazoDias;
+    }
+
+    public BigDecimal getValorTotal() {
+        if (valor != null && vagas != null) {
+            return valor.multiply(BigDecimal.valueOf(vagas));
+        }
+        return valor;
     }
 }

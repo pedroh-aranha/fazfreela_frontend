@@ -274,13 +274,12 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="valor">Valor (R$)</label>
-                        <input type="number" id="valor" name="valor" th:value="${trabalho.valor}" step="0.01" min="0" placeholder="0.00" required>
+                        <label for="valor">Valor por Pessoa (R$)</label>
+                        <input type="number" id="valor" name="valor" th:value="${trabalho.valor}" step="0.01" min="1" placeholder="0.00" required>
                     </div>
                     <div class="form-group">
-                        <label for="dataServico">Data do Serviço</label>
-                        <input type="datetime-local" id="dataServico" name="dataServico"
-                               th:value="${trabalho.dataServico != null ? #temporals.format(trabalho.dataServico, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                        <label for="vagas">Quantidade de Pessoas (Vagas)</label>
+                        <input type="number" id="vagas" name="vagas" th:value="${trabalho.vagas != null ? trabalho.vagas : 1}" min="1" max="100" required>
                     </div>
                 </div>
 
@@ -288,6 +287,18 @@
                     <div class="form-group">
                         <label for="horasJornada">Quantidade de Horas (Jornada)</label>
                         <input type="number" id="horasJornada" name="horasJornada" th:value="${trabalho.horasJornada}" min="1" placeholder="Ex: 8" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prazoDias">Prazo de Candidatura (Dias)</label>
+                        <input type="number" id="prazoDias" name="prazoDias" th:value="${trabalho.prazoDias != null ? trabalho.prazoDias : 2}" min="1" max="30" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="dataServico">Data do Serviço</label>
+                        <input type="datetime-local" id="dataServico" name="dataServico"
+                               th:value="${trabalho.dataServico != null ? #temporals.format(trabalho.dataServico, 'yyyy-MM-dd''T''HH:mm') : ''}">
                     </div>
                 </div>
 
