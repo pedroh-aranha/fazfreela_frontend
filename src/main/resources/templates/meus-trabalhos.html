@@ -116,7 +116,6 @@
             border: 1px dashed rgba(255,255,255,0.1);
         }
 
-        /* Botões de ação nos items */
         .btn-ver-candidatos, .btn-concluir, .btn-edit, .btn-excluir, .btn-desistir, .btn-cancelar-cand {
             display: inline-flex;
             align-items: center;
@@ -322,7 +321,7 @@
             <button id="btn-anunciados" class="tab-btn" onclick="switchTab('anunciados', this)">Vagas que Anunciei</button>
         </div>
 
-        <!-- CONTEÚDO: MINHAS CANDIDATURAS -->
+        <!--  MINHAS CANDIDATURAS -->
         <div id="candidaturas" class="tab-content active">
             
             <div th:if="${minhasCandidaturas == null or #lists.isEmpty(minhasCandidaturas)}" class="empty-state">
@@ -344,12 +343,9 @@
                         <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Valor</div>
                         R$ <span th:text="${c.trabalho.valor}">0.00</span>
                     </div>
-                    <!-- Desistir: só para candidaturas APROVADO -->
-                    <form th:if="${c.status == 'APROVADO'}" th:action="@{/trabalhos/{id}/desistir(id=${c.trabalho.id})}" method="post" style="margin: 0;"
-                          onsubmit="return confirm('Tem certeza que deseja desistir deste trabalho? O trabalho voltará para ABERTO.')">
-                        <button type="submit" class="btn-desistir">🚪 Desistir do Trabalho</button>
-                    </form>
-                    <!-- Cancelar: só para candidaturas PENDENTE ou REJEITADO -->
+
+                    <span th:if="${c.status == 'APROVADO'}" style="font-size: 0.85rem; color: #10b981; font-weight: 600;">✅ Você foi aprovado!</span>
+
                     <form th:if="${c.status == 'PENDENTE' or c.status == 'REJEITADO'}" th:action="@{/candidaturas/cancelar/{id}(id=${c.id})}" method="post" style="margin: 0;"
                           onsubmit="return confirm('Tem certeza que deseja cancelar esta candidatura?')">
                         <button type="submit" class="btn-cancelar-cand">✖ Cancelar Candidatura</button>
@@ -358,7 +354,6 @@
             </div>
         </div>
 
-        <!-- CONTEÚDO: VAGAS ANUNCIADAS -->
         <div id="anunciados" class="tab-content">
             
             <div th:if="${trabalhosCriados == null or #lists.isEmpty(trabalhosCriados)}" class="empty-state">
@@ -445,7 +440,7 @@
             switchTab('anunciados', document.getElementById('btn-anunciados'));
         }
 
-        // Logica simples para as estrelas
+        // Logica das estrelas
         const stars = document.querySelectorAll('.star');
         const notaInput = document.getElementById('notaInput');
 
