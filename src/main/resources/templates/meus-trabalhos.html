@@ -344,11 +344,8 @@
                         <div style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Valor</div>
                         R$ <span th:text="${c.trabalho.valor}">0.00</span>
                     </div>
-                    <!-- Desistir: só para candidaturas APROVADO -->
-                    <form th:if="${c.status == 'APROVADO'}" th:action="@{/trabalhos/{id}/desistir(id=${c.trabalho.id})}" method="post" style="margin: 0;"
-                          onsubmit="return confirm('Tem certeza que deseja desistir deste trabalho? O trabalho voltará para ABERTO.')">
-                        <button type="submit" class="btn-desistir">🚪 Desistir do Trabalho</button>
-                    </form>
+                    <!-- Pessoa aprovada não pode desistir do trabalho -->
+                    <span th:if="${c.status == 'APROVADO'}" style="font-size: 0.85rem; color: #10b981; font-weight: 600;">✅ Você foi aprovado!</span>
                     <!-- Cancelar: só para candidaturas PENDENTE ou REJEITADO -->
                     <form th:if="${c.status == 'PENDENTE' or c.status == 'REJEITADO'}" th:action="@{/candidaturas/cancelar/{id}(id=${c.id})}" method="post" style="margin: 0;"
                           onsubmit="return confirm('Tem certeza que deseja cancelar esta candidatura?')">
