@@ -18,7 +18,6 @@ public class TrabalhoBean {
     private String status = "ABERTO";
     private UsuarioBean contratante;
     private Integer vagas = 1;
-    private Integer prazoDias = 2;
 
     public TrabalhoBean() {
     }
@@ -137,14 +136,6 @@ public class TrabalhoBean {
 
     public void setVagas(Integer vagas) {
         this.vagas = vagas;
-    }
-
-    public Integer getPrazoDias() {
-        return prazoDias;
-    }
-
-    public void setPrazoDias(Integer prazoDias) {
-        this.prazoDias = prazoDias;
     }
 
     public BigDecimal getValorTotal() {
