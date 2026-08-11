@@ -276,14 +276,6 @@
                         <p th:text="${trabalho.vagas != null ? trabalho.vagas : 1} + ' pessoa(s)'"></p>
                     </div>
                 </div>
-
-                <div class="info-item">
-                    <div class="info-icon">⏳</div>
-                    <div class="info-text">
-                        <h4>Prazo Candidatura</h4>
-                        <p th:text="${trabalho.prazoDias != null ? trabalho.prazoDias : 2} + ' dias'"></p>
-                    </div>
-                </div>
                 
                 <div class="info-item" th:if="${trabalho.dataServico != null}">
                     <div class="info-icon">📅</div>

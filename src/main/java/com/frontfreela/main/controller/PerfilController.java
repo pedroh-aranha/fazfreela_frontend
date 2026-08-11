@@ -37,11 +37,14 @@ public class PerfilController {
                 return "redirect:/login";
             }
             model.addAttribute("erro", "Erro ao carregar o perfil.");
+            model.addAttribute("usuario", new UsuarioBean()); // Prevents null pointer in Thymeleaf
         } catch (Exception e) {
             model.addAttribute("erro", "Erro ao carregar o perfil.");
+            model.addAttribute("usuario", new UsuarioBean()); // Prevents null pointer in Thymeleaf
         }
 
         return "perfil";
+
     }
 
     @GetMapping("/perfil/{id}")
