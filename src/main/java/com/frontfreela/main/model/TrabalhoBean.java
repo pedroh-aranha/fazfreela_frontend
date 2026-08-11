@@ -11,13 +11,17 @@ public class TrabalhoBean {
     private String endereco;
     private String cidade;
     private String estado;
+    
+    @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dataServico;
+    
     private BigDecimal valor;
     private Integer horasJornada;
     private String habilidadesExigidas;
     private String status = "ABERTO";
     private UsuarioBean contratante;
     private Integer vagas = 1;
+    private String modalidade = "PRESENCIAL";
 
     public TrabalhoBean() {
     }
@@ -136,6 +140,14 @@ public class TrabalhoBean {
 
     public void setVagas(Integer vagas) {
         this.vagas = vagas;
+    }
+
+    public String getModalidade() {
+        return modalidade;
+    }
+
+    public void setModalidade(String modalidade) {
+        this.modalidade = modalidade;
     }
 
     public BigDecimal getValorTotal() {
