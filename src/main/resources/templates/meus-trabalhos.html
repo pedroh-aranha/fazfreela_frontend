@@ -284,6 +284,24 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
         }
+        .nav-icon-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -295,6 +313,9 @@
             <span style="font-weight: 600; color: #f8fafc; font-size: 0.95rem;">Olá, <span th:text="${session.nome}" style="color: #a78bfa;">Trabalhador</span> 👋</span>
         </div>
         <div class="nav-links" style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="/notificacoes" class="nav-icon-container" style="color: #f8fafc; text-decoration: none; font-size: 1.2rem;">
+                🔔 <span class="badge" id="nav-notificacoes-badge" style="display: none;">0</span>
+            </a>
             <a href="/trabalhos" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Vagas</a>
             <a href="/meus-trabalhos" style="color: #f8fafc; text-decoration: none; font-weight: 600;">Meus Trabalhos</a>
             <a href="/perfil" style="color: #94a3b8; text-decoration: none; font-weight: 600; transition: color 0.3s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">Meu Perfil</a>
@@ -466,6 +487,20 @@
         function salvarAvaliacao() {
             document.getElementById('formAvaliacao').submit();
         }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/notificacoes/count')
+                .then(response => response.json())
+                .then(count => {
+                    if (count > 0) {
+                        const badge = document.getElementById('nav-notificacoes-badge');
+                        badge.innerText = count;
+                        badge.style.display = 'block';
+                    }
+                })
+                .catch(error => console.error("Erro ao carregar notificações", error));
+        });
     </script>
 </body>
 </html>

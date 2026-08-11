@@ -24,7 +24,10 @@ public class AuthController {
 
     @GetMapping("/")
     public String home(HttpSession session) {
-        return "redirect:/trabalhos";
+        if (session.getAttribute("token") != null) {
+            return "redirect:/trabalhos";
+        }
+        return "index";
     }
 
     @GetMapping("/login")

@@ -7,6 +7,7 @@ package com.frontfreela.main.service;
 import com.frontfreela.main.model.AvaliacaoBean;
 import com.frontfreela.main.model.CandidaturaBean;
 import com.frontfreela.main.model.TrabalhoBean;
+import com.frontfreela.main.model.NotificacaoBean;
 import com.frontfreela.main.model.UserRequestBean;
 import com.frontfreela.main.model.UsuarioBean;
 import java.util.Arrays;
@@ -181,6 +182,31 @@ public class AuthRestClientService {
     public void desistirDoTrabalho(Long trabalhoId, String token) {
         restClient.put()
                 .uri("/trabalhos/" + trabalhoId + "/desistir")
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .body(String.class);
+    }
+
+    public List<NotificacaoBean> listarNotificacoes(String token) {
+        NotificacaoBean[] notificacoes = restClient.get()
+                .uri("/notificacoes")
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .body(NotificacaoBean[].class);
+        return notificacoes != null ? Arrays.asList(notificacoes) : List.of();
+    }
+
+    public Integer contarNotificacoesNaoLidas(String token) {
+        return restClient.get()
+                .uri("/notificacoes/nao-lidas/count")
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .body(Integer.class);
+    }
+
+    public void marcarNotificacaoComoLida(Long id, String token) {
+        restClient.put()
+                .uri("/notificacoes/" + id + "/lida")
                 .header("Authorization", "Bearer " + token)
                 .retrieve()
                 .body(String.class);
