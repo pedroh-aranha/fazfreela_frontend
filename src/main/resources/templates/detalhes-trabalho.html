@@ -263,9 +263,17 @@
                 <div class="info-item">
                     <div class="info-icon">📍</div>
                     <div class="info-text">
-                        <h4>Localização</h4>
+                        <h4>Endereço</h4>
                         <p th:if="${trabalho.endereco != null && !trabalho.endereco.isEmpty()}" th:text="${trabalho.endereco}"></p>
-                        <p th:if="${trabalho.endereco == null || trabalho.endereco.isEmpty()}" th:text="${trabalho.cidade} + ' - ' + ${trabalho.estado}"></p>
+                        <p th:if="${trabalho.endereco == null || trabalho.endereco.isEmpty()}">Não informado</p>
+                    </div>
+                </div>
+
+                <div class="info-item" th:if="${trabalho.cidade != null && !trabalho.cidade.isEmpty()}">
+                    <div class="info-icon">🏙️</div>
+                    <div class="info-text">
+                        <h4>Cidade / Estado</h4>
+                        <p th:text="${trabalho.cidade} + ' - ' + ${trabalho.estado}"></p>
                     </div>
                 </div>
 
