@@ -162,6 +162,53 @@
             margin: 2rem 0;
         }
 
+        /* Modalidade toggle */
+        .modalidade-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .modalidade-option {
+            display: none;
+        }
+        .modalidade-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(15, 23, 42, 0.6);
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .modalidade-label:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            color: #f8fafc;
+        }
+        .modalidade-option:checked + .modalidade-label {
+            border-color: rgba(139, 92, 246, 0.7);
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+        #grupo-endereco {
+            transition: opacity 0.25s, max-height 0.3s;
+            overflow: hidden;
+        }
+        #grupo-endereco.hidden-field {
+            opacity: 0;
+            max-height: 0;
+            margin: 0;
+            pointer-events: none;
+        }
+
         .char-count {
             text-align: right;
             font-size: 0.8rem;
@@ -293,7 +340,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="endereco">Endereço Completo</label>
+                    <label>Modalidade</label>
+                    <div class="modalidade-group">
+                        <input type="radio" name="modalidade" id="mod-presencial" value="PRESENCIAL" class="modalidade-option" checked>
+                        <label for="mod-presencial" class="modalidade-label">🏠 Presencial</label>
+
+                        <input type="radio" name="modalidade" id="mod-remoto" value="REMOTO" class="modalidade-option">
+                        <label for="mod-remoto" class="modalidade-label">💻 Remoto</label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="grupo-endereco">
+                    <label for="endereco">Endereço Completo <span style="color:#f87171">*</span></label>
                     <input type="text" id="endereco" name="endereco" th:value="${trabalho.endereco}"
                            placeholder="Rua, número, complemento, bairro..." required maxlength="200">
                 </div>
@@ -372,6 +430,28 @@
     </div>
 
     <script>
+        // === Modalidade: Presencial / Remoto ===
+        const grupoEndereco = document.getElementById('grupo-endereco');
+        const inputEndereco = document.getElementById('endereco');
+
+        function atualizarModalidade() {
+            const remoto = document.getElementById('mod-remoto').checked;
+            if (remoto) {
+                grupoEndereco.classList.add('hidden-field');
+                inputEndereco.removeAttribute('required');
+                inputEndereco.value = '';
+            } else {
+                grupoEndereco.classList.remove('hidden-field');
+                inputEndereco.setAttribute('required', 'required');
+            }
+        }
+
+        document.querySelectorAll('input[name="modalidade"]').forEach(r =>
+            r.addEventListener('change', atualizarModalidade)
+        );
+
+        document.addEventListener('DOMContentLoaded', atualizarModalidade);
+
         const estadoSelect = document.getElementById('estado');
         const cidadeSelect = document.getElementById('cidade');
 

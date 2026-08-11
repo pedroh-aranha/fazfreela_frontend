@@ -50,17 +50,6 @@ public class TrabalhoController {
                     .filter(t -> t.getDataServico() == null || !t.getDataServico().isBefore(agora))
                     .toList();
             
-            try {
-                com.frontfreela.main.model.UsuarioBean perfil = authService.buscarPerfil(token);
-                if (perfil != null && perfil.getId() != null) {
-                    trabalhos = trabalhos.stream()
-                            .filter(t -> t.getContratante() == null || !perfil.getId().equals(t.getContratante().getId()))
-                            .toList();
-                }
-            } catch (Exception ex) {
-                // ignora o erro e mostra todos
-            }
-            
             model.addAttribute("trabalhos", trabalhos);
         } catch (HttpClientErrorException e) {
             // Token expirado ou inválido → logout automático
@@ -212,6 +201,9 @@ public class TrabalhoController {
             } else if (errorMsg != null && errorMsg.contains("recebendo candidaturas")) {
                 redirectAttributes.addAttribute("erro", "Este anúncio não está mais recebendo candidaturas.");
                 return "redirect:/trabalhos";
+            } else if (errorMsg != null && (errorMsg.contains("já se candidatou") || errorMsg.contains("ja se candidatou"))) {
+                redirectAttributes.addAttribute("erro", "Você já se candidatou a este serviço.");
+                return "redirect:/trabalhos";
             } else if (e.getStatusCode() == HttpStatusCode.valueOf(400)) {
                 redirectAttributes.addAttribute("erro", "Não foi possível realizar a candidatura.");
                 return "redirect:/trabalhos";
@@ -296,7 +288,8 @@ public class TrabalhoController {
             String erroDetalhado = e.getResponseBodyAsString();
             System.out.println("Erro do Back-end ao criar trabalho: " + erroDetalhado);
 
-            model.addAttribute("erro", "Erro ao criar o anúncio: " + (erroDetalhado.isEmpty() ? "Verifique os dados." : erroDetalhado));
+            String mensagem = extrairMensagemErro(erroDetalhado, "Verifique os dados e tente novamente.");
+            model.addAttribute("erro", "Erro ao criar o anúncio: " + mensagem);
             model.addAttribute("trabalho", trabalho);
             return "novo-trabalho";
         } catch (Exception e) {
@@ -388,7 +381,8 @@ public class TrabalhoController {
             if (errorMsg != null && errorMsg.contains("aprovado")) {
                 redirectAttributes.addFlashAttribute("erro", "Você já foi aprovado. Para desistir, use a opção 'Desistir do Trabalho'.");
             } else {
-                redirectAttributes.addFlashAttribute("erro", "Erro ao cancelar candidatura: " + errorMsg);
+                String mensagem = extrairMensagemErro(errorMsg, "Erro ao cancelar candidatura.");
+                redirectAttributes.addFlashAttribute("erro", mensagem);
             }
             return "redirect:/meus-trabalhos";
         } catch (Exception e) {
@@ -412,11 +406,45 @@ public class TrabalhoController {
                 session.invalidate();
                 return "redirect:/login";
             }
-            redirectAttributes.addFlashAttribute("erro", "Erro ao desistir: " + e.getResponseBodyAsString());
+            String mensagem = extrairMensagemErro(e.getResponseBodyAsString(), "Erro ao registrar desistência.");
+            redirectAttributes.addFlashAttribute("erro", mensagem);
             return "redirect:/meus-trabalhos";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Erro interno ao registrar desistência.");
             return "redirect:/meus-trabalhos";
         }
+    }
+
+    /**
+     * Extrai o campo "message" de um JSON de erro do back-end.
+     * Se não encontrar, retorna o fallback informado.
+     */
+    private String extrairMensagemErro(String responseBody, String fallback) {
+        if (responseBody == null || responseBody.isBlank()) {
+            return fallback;
+        }
+        try {
+            // Tenta extrair "message":"..."
+            int idx = responseBody.indexOf("\"message\":\"");
+            if (idx != -1) {
+                int start = idx + 11;
+                int end = responseBody.indexOf("\"", start);
+                if (end != -1) {
+                    return responseBody.substring(start, end);
+                }
+            }
+            // Tenta extrair "error":"..."
+            int idxError = responseBody.indexOf("\"error\":\"");
+            if (idxError != -1) {
+                int start = idxError + 9;
+                int end = responseBody.indexOf("\"", start);
+                if (end != -1) {
+                    return responseBody.substring(start, end);
+                }
+            }
+        } catch (Exception ignored) {
+            // Nunca deixar o parsing explodir para o usuário
+        }
+        return fallback;
     }
 }
