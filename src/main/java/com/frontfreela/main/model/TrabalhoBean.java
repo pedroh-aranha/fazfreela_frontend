@@ -11,7 +11,8 @@ public class TrabalhoBean {
     private String endereco;
     private String cidade;
     private String estado;
-    
+
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dataServico;
     

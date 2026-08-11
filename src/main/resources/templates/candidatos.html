@@ -112,7 +112,7 @@
         <div style="background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px; padding: 0.8rem 1.2rem; margin-bottom: 2rem; color: #a78bfa; font-weight: 600; display: flex; gap: 1.5rem; justify-content: space-between;">
             <span>👥 Vagas Totais: <strong th:text="${trabalho.vagas != null ? trabalho.vagas : 1}" style="color: #fff;">1</strong></span>
             <span>💰 Valor por Pessoa: <strong th:text="'R$ ' + ${trabalho.valor}" style="color: #10b981;">R$ 0.00</strong></span>
-            <span>⏳ Prazo Candidatura: <strong th:text="${trabalho.prazoDias != null ? trabalho.prazoDias : 2} + ' dias'" style="color: #fff;">2 dias</strong></span>
+            <span>⏳ Prazo Candidatura: <strong style="color: #fff;">2 dias</strong></span>
         </div>
 
         <div th:if="${candidaturas.empty}" style="text-align: center; padding: 3rem; color: var(--text-muted);">

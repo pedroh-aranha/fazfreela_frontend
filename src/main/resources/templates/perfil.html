@@ -380,8 +380,8 @@
         // === Localização ===
         const estadoSelect = document.getElementById('estado');
         const cidadeSelect = document.getElementById('cidade');
-        const userEstado = /*[[${usuario.estado}]]*/ null;
-        const userCidade  = /*[[${usuario.cidade}]]*/ null;
+        const userEstado = /*[[${usuario?.estado}]]*/ null;
+        const userCidade  = /*[[${usuario?.cidade}]]*/ null;
 
         async function carregarEstados() {
             try {
@@ -430,7 +430,7 @@
         carregarEstados();
 
         // === Sistema de Tags de Habilidades ===
-        const userHabilidades  = /*[[${usuario.habilidades}]]*/ null;
+        const userHabilidades  = /*[[${usuario?.habilidades}]]*/ null;
         const tagsContainer    = document.getElementById('tagsContainer');
         const tagInput         = document.getElementById('tagInput');
         const habilidadesInput = document.getElementById('habilidades');

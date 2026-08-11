@@ -286,17 +286,21 @@ public class TrabalhoController {
             return "redirect:/login";
         }
         try {
+            // Log para debug caso ocorra algum problema futuro
+            System.out.println("Tentando criar trabalho: " + trabalho.getTitulo());
+
             authService.criarTrabalho(trabalho, token);
             return "redirect:/meus-trabalhos?editado=true";
-        } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == HttpStatusCode.valueOf(401)) {
-                session.invalidate();
-                return "redirect:/login";
-            }
-            model.addAttribute("erro", "Erro ao criar o anúncio. Verifique os dados e tente novamente.");
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            // Captura o erro exato retornado pelo back-end para sabermos o motivo real
+            String erroDetalhado = e.getResponseBodyAsString();
+            System.out.println("Erro do Back-end ao criar trabalho: " + erroDetalhado);
+
+            model.addAttribute("erro", "Erro ao criar o anúncio: " + (erroDetalhado.isEmpty() ? "Verifique os dados." : erroDetalhado));
             model.addAttribute("trabalho", trabalho);
             return "novo-trabalho";
         } catch (Exception e) {
+            e.printStackTrace();
             model.addAttribute("erro", "Erro interno ao criar o anúncio. Tente novamente.");
             model.addAttribute("trabalho", trabalho);
             return "novo-trabalho";
